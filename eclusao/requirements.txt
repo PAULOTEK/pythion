@@ -1,0 +1,15 @@
+
+requests~=2.32.3
+pip~=24.2
+six~=1.17.0
+Events~=0.5
+botocore~=1.35.87
+boto3~=1.35.87
+s3transfer~=0.10.4
+jmespath~=1.0.1
+charset-normalizer~=3.4.1
+python-dateutil~=2.9.0.post0
+certifi~=2024.12.14
+urllib3~=2.3.0
+idna~=3.10
+opensearch-py~=2.8.0

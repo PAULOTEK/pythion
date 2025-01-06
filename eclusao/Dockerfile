@@ -6,10 +6,10 @@ WORKDIR /app
 
 # Copie o arquivo de requisitos e o script Python para o contêiner
 COPY requirements.txt .
-COPY alimentar_cwl.py .
+COPY main.py .
 
 # Instale as dependências
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Defina o comando para executar o script Python
-CMD ["python", "alimentar_cwl.py"]
+CMD ["python", "main.py"]

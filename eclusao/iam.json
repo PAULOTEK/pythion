@@ -1,0 +1,34 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Deny",
+            "Principal": {
+                "AWS": "*"
+            },
+            "Action": "s3:*",
+            "Resource": [
+                "arn:aws:s3:::aes-siem-083407217507-cwl",
+                "arn:aws:s3:::aes-siem-083407217507-cwl/*"
+            ],
+            "Condition": {
+                "Bool": {
+                    "aws:SecureTransport": "false"
+                }
+            }
+        },
+        {
+            "Sid": "Allow OpenSearch Service to store snapshot",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::083407217507:role/aes-siem-snapshot-role"
+            },
+            "Action": [
+                "s3:PutObject",
+                "s3:GetObject",
+                "s3:DeleteObject"
+            ],
+            "Resource": "arn:aws:s3:::aes-siem-083407217507-cwl*"
+        }
+    ]
+}

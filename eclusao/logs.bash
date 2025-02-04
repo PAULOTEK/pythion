@@ -11,3 +11,5 @@ do
     #kubectl logs --since=30m $pod > /tmp/${pod}.log
     kubectl logs --tail=500 $pod > /tmp/${pod}.log
 done
+
+

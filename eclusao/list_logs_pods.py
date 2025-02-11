@@ -1,40 +1,47 @@
 #!/usr/bin/env python3
 
+import subprocess
 import json
 import sys
-import tempfile
 import os
-from concurrent.futures import ThreadPoolExecutor
-from kubernetes import client, config
+
+LOG_DIRECTORY = r"C:\Users\Paulo\OneDrive\Documentos\logs"
+
+# Cria o diretório de logs, se não existir
+os.makedirs(LOG_DIRECTORY, exist_ok=True)
 
 def list_platform_pods():
     """Lista os pods disponíveis no cluster cujo nome contém 'platform'."""
     try:
-        config.load_kube_config()  # Carrega a configuração do kubeconfig
-        v1 = client.CoreV1Api()
-        pods = v1.list_pod_for_all_namespaces(watch=False)
+        result = subprocess.run(
+            ["kubectl", "get", "pods", "-o", "json"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        pods = json.loads(result.stdout)
         return [
-            {"name": item.metadata.name, "status": item.status.phase}
-            for item in pods.items
-            if "platform" in item.metadata.name and item.status.phase == "Running"
+            {"name": item["metadata"]["name"], "status": item["status"]["phase"]}
+            for item in pods.get("items", [])
+            if "platform" in item["metadata"]["name"] and item["status"]["phase"] == "Running"
         ]
     except Exception as e:
         print(f"Erro ao listar pods: {e}", file=sys.stderr)
         sys.exit(1)
 
 def generate_logs(pod_name):
-    """Gera os logs do pod especificado e salva em um arquivo temporário."""
-    temp_dir = tempfile.gettempdir()
-    log_file = os.path.join(temp_dir, f"{pod_name}.log")
+    """Gera os logs do pod especificado e salva no diretório de logs."""
+    log_file = os.path.join(LOG_DIRECTORY, f"{pod_name}.log")
 
     try:
-        config.load_kube_config()  # Carrega a configuração do kubeconfig
-        v1 = client.CoreV1Api()
-        logs = v1.read_namespaced_pod_log(name=pod_name, namespace="default", tail_lines=500)
         with open(log_file, "w") as log:
-            log.write(logs)
+            subprocess.run(
+                ["kubectl", "logs", "--tail=500", pod_name],
+                stdout=log,
+                check=True
+            )
         print(f"Log gerado com sucesso: {log_file}")
-    except Exception as e:
+    except subprocess.CalledProcessError as e:
         print(f"Erro ao gerar logs do pod {pod_name}: {e}", file=sys.stderr)
         sys.exit(1)
 
